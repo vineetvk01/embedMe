@@ -1,0 +1,39 @@
+{
+  "name": "server",
+  "version": "0.1.0",
+  "description": "Core Backend Service for the Rubotiq Platform",
+  "main": "build/index.js",
+  "scripts": {
+    "start:build": "tsc -w",
+    "start:run": "nodemon build/index.js",
+    "start": "concurrently yarn:start:*"
+  },
+  "author": "Rubotiq & Vineet Srivastav",
+  "license": "MIT",
+  "dependencies": {
+    "@tsed/common": "^5.57.1",
+    "@tsed/core": "^5.57.1",
+    "@tsed/di": "^5.57.1",
+    "@tsed/mongoose": "^5.59.0",
+    "@tsed/platform-express": "^5.57.1",
+    "body-parser": "^1.19.0",
+    "compression": "^1.7.4",
+    "concurrently": "^5.2.0",
+    "cookie-parser": "^1.4.5",
+    "express": "4",
+    "method-override": "^3.0.0",
+    "mongoose": "^5.9.19",
+    "nodemon": "^2.0.4"
+  },
+  "devDependencies": {
+    "@tsed/testing-mongoose": "^5.59.0",
+    "@types/mongoose": "^5.7.27",
+    "@types/body-parser": "^1.19.0",
+    "@types/compression": "^1.7.0",
+    "@types/cookie-parser": "^1.4.2",
+    "@types/express": "^4.17.6",
+    "@types/method-override": "^0.0.31",
+    "ts-node": "^8.10.2",
+    "typescript": "^3.9.5"
+  }
+}

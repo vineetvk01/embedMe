@@ -1,0 +1,32 @@
+[
+  {
+    "_id": "583538e9605c9e261eb80042",
+    "email": "claudine.noel@undefined.org",
+    "firstName": "Claudine",
+    "lastName": "Noel",
+    "password": "Qwerty@123",
+    "isActive": true,
+    "role": "user",
+    "workspaces": [
+      {
+        "workspaceId": "5ce4f06355e6136cf623a2aa",
+        "title": "Owner"
+      }
+    ]
+  },
+  {
+    "_id": "583538ea448f69d5dfa9dab0",
+    "email": "wendi.small@undefined.net",
+    "firstName": "Wendi",
+    "lastName": "Small",
+    "password": "Qwerty@123",
+    "isActive": true,
+    "role": "user",
+    "workspaces": [
+      {
+        "workspaceId": "5ce4f06355e6136cf623a2ab",
+        "title": "Owner"
+      }
+    ]
+  }
+]
