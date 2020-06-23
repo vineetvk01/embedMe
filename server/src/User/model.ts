@@ -24,17 +24,14 @@ enum Roles {
 export class User {
 
   @ObjectID("id")
-  @Required()
   _id: string;
 
   @Property()
   @Required()
-  @MaxLength(50)
   firstName: string;
 
   @Property()
   @Required()
-  @MaxLength(50)
   lastName: string;
 
   @Unique()
@@ -57,6 +54,7 @@ export class User {
 
   @Property()
   @Required()
+  @Default(Date)
   signedUpAt: Date = new Date();
 
   @Property()
