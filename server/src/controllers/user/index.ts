@@ -13,8 +13,7 @@ export class UserController {
   @UseAuth(Authentication, { role: Roles.USER })
   @Status(200)
   currentUser(req: AuthenticatedReq, res: Response): any {
-    console.log(req.user)
-    return { status: "success", user: req.user }
+    return { isLoggedIn: true, user: req.user }
   }
 
   @Post('/login')
@@ -31,8 +30,8 @@ export class UserController {
       throw new BadRequest('The password you have entered is incorrect');
     }
 
-    console.log('This is the user', userExists);
-    const userAttached = Authentication.attachTokenToHeader(res, userExists);
+    Authentication.attachTokenToHeader(res, userExists);
+
     return {user: userExists};
   }
 

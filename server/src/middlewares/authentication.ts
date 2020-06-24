@@ -47,7 +47,7 @@ export class Authentication implements IMiddleware {
     const userToAttach = user.toObject();
     delete userToAttach.password;
 
-    const tokenValue = jwt.sign({ ...userToAttach }, process.env.JWT_KEY || 'My_Key');
+    const tokenValue = jwt.sign({ ...userToAttach }, process.env.JWT_KEY || 'My_Key', {expiresIn: '1d'});
     const config = { maxAge: 86400000, httpOnly: true, };
 
     response.cookie('Authentication', tokenValue, config)
