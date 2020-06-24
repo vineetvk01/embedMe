@@ -23,10 +23,14 @@ const rootDir = __dirname;
   ],
   httpPort: "127.0.0.1:4000",
   httpsPort: "127.0.0.2:4001",
+  passport: {},
   logger: {
-    level: "debug",
-    requestFields: ["reqId", "method", "url", "headers", "body", "query", "params", "duration"]
+    level: "info",
+    //requestFields: ["reqId", "method", "url", "headers", "body", "query", "params", "duration"],
+    logRequest: false,
+    disableRoutesSummary: true
   },
+  
 })
 export class Server {
   @Inject()

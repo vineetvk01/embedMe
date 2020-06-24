@@ -1,5 +1,6 @@
-import { Property, Required, Enum, Email, Pattern, MaxLength, Default } from "@tsed/common";
-import { Model, Schema, ObjectID, Ref, Unique } from "@tsed/mongoose";
+import { Property, Required, Enum, Email, MaxLength, Default, PropertySerialize } from "@tsed/common";
+import { Model, Schema, ObjectID, Ref, Unique, PreHook } from "@tsed/mongoose";
+import bcrypt from "bcrypt";
 import { Workspace } from '../Workspace/model';
 
 @Schema()
@@ -15,10 +16,12 @@ class MyWorkspace {
 
 }
 
-enum Roles {
+export enum Roles {
   ADMIN = "admin",
   USER = "user"
 }
+
+const saltRounds = 10;
 
 @Model()
 export class User {
@@ -40,6 +43,7 @@ export class User {
   email: string;
 
   @Property()
+  @PropertySerialize(v => '*****')
   password: string;
 
   @Enum(Roles)
@@ -59,5 +63,19 @@ export class User {
 
   @Property()
   workspaces: MyWorkspace[];
+
+  @PreHook("save")
+  static preSave(user: User, next: any) {
+    const salt = bcrypt.genSaltSync(saltRounds);
+    const hash = bcrypt.hashSync(user.password, salt);
+    user.password = hash;
+    next();
+  }
+
+
+  isCorrectPassword(expectedPassword: string):boolean {
+    const user: User = this;
+    return bcrypt.compareSync(expectedPassword, user.password);
+  }
 
 }

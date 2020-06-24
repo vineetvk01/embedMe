@@ -1,10 +1,11 @@
 import { Service, Inject } from "@tsed/common";
-import { MongooseService, MongooseModel } from "@tsed/mongoose";
+import { MongooseModel } from "@tsed/mongoose";
 import { $log } from "@tsed/logger";
 import { User } from './model';
+import { Document } from "mongoose";
 
 @Service()
-export class UserService {
+export class UserService{
 
   @Inject(User)
   private User: MongooseModel<User>;
@@ -40,6 +41,7 @@ export class UserService {
     $log.debug({ message: "Validate user", user });
 
     const model = new this.User(user);
+
     $log.debug({ message: "Save User", user });
     await model.save();
 
@@ -52,7 +54,12 @@ export class UserService {
     return this.User.find(options).exec();
   }
 
-  async findUserByEmail(email: string): Promise<User> {
+  async findUserByEmail(email: string): Promise<User & Document> {
     return this.User.findOne({ email }).exec();
   }
+
+  async findOne(options = {}): Promise<User>{
+    return this.User.findOne(options).exec();
+  }
+  
 }

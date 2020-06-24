@@ -1,6 +1,7 @@
-import { Controller, Get, Post, Status, BodyParams, Required, Header } from "@tsed/common";
-import { Request, Response } from "@tsed/common";
-import { User, UserService, EmailAlreadyExists } from '../../User';
+import { Controller, Get, Post, Status, BodyParams, Required, UseAuth } from "@tsed/common";
+import { Request, Res, Response } from "@tsed/common";
+import { User, Roles, UserService, EmailAlreadyExists } from '../../User';
+import { Authentication, AuthenticatedReq } from '../../middlewares/authentication';
 import { BadRequest } from "@tsed/exceptions";
 
 @Controller("/user")
@@ -9,19 +10,30 @@ export class UserController {
   constructor(private userService: UserService) { }
 
   @Get('/me')
+  @UseAuth(Authentication, { role: Roles.USER })
   @Status(200)
-  currentUser(req: Request, res: Response): any {
-
-    return {}
+  currentUser(req: AuthenticatedReq, res: Response): any {
+    console.log(req.user)
+    return { status: "success", user: req.user }
   }
 
   @Post('/login')
-  async loginUser(req: Request, res: Response): Promise<void> {
+  @Status(200)
+  async loginUser(@Required() @BodyParams() user: any, @Res() res: Res): Promise<any> {
+    const { email, password } = user;
+    const userExists = await this.userService.findUserByEmail(email);
+    if (!userExists) {
+      throw new BadRequest('This email is not registered');
+    }
 
-    res.status(200).send({
-      status: 'failed'
-    });
+    const isCorrectPassword = userExists.isCorrectPassword(password);
+    if (!isCorrectPassword) {
+      throw new BadRequest('The password you have entered is incorrect');
+    }
 
+    console.log('This is the user', userExists);
+    const userAttached = Authentication.attachTokenToHeader(res, userExists);
+    return {user: userExists};
   }
 
   @Post('/register')
@@ -30,17 +42,15 @@ export class UserController {
 
     const userExists = await this.userService.findUserByEmail(user.email);
 
-    console.log(userExists);
-
     if (userExists) {
-      console.log('This is working ?')
       throw (new EmailAlreadyExists());
     }
 
     try {
       const userRegistered = await this.userService.save(user);
+      delete userRegistered.password;
       return userRegistered;
-    }catch(error){
+    } catch (error) {
       throw new BadRequest(error.message);
     }
   }
