@@ -5,7 +5,7 @@ import { User } from '../User';
 import { Document } from "mongoose";
 
 export interface AuthenticatedReq extends Req {
-  user?: any;
+  user: User | null;
 }
 
 @Middleware()
@@ -35,7 +35,7 @@ export class Authentication implements IMiddleware {
 
       if (cookieArray.length > 0) {
         const token = cookieArray[0].split('=')[1];
-        request.user = jwt.verify(token, process.env.JWT_KEY || 'My_Key');
+        request.user = <User> jwt.verify(token, process.env.JWT_KEY || 'My_Key'); //as User;
       }
     }
     return;

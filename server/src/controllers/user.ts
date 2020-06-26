@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Status, BodyParams, Required, UseAuth } from "@tsed/common";
 import { Request, Res, Response } from "@tsed/common";
-import { User, Roles, UserService, EmailAlreadyExists } from '../../User';
-import { Authentication, AuthenticatedReq } from '../../middlewares/authentication';
+import { User, Roles, UserService, EmailAlreadyExists } from '../User';
+import { Authentication, AuthenticatedReq } from '../middlewares/authentication';
 import { BadRequest } from "@tsed/exceptions";
 
 @Controller("/user")
@@ -12,8 +12,9 @@ export class UserController {
   @Get('/me')
   @UseAuth(Authentication, { role: Roles.USER })
   @Status(200)
-  currentUser(req: AuthenticatedReq, res: Response): any {
-    return { isLoggedIn: true, user: req.user }
+  async currentUser(req: AuthenticatedReq, res: Response): Promise<any> {
+    const user = await this.userService.findOne({_id: req.user._id});
+    return { isLoggedIn: true, user }
   }
 
   @Post('/login')

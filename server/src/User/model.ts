@@ -1,10 +1,17 @@
-import { Property, Required, Enum, Email, MaxLength, Default, PropertySerialize } from "@tsed/common";
+import { Property, Required, Enum, Email, MaxLength, Default, PropertySerialize, PropertyType } from "@tsed/common";
 import { Model, Schema, ObjectID, Ref, Unique, PreHook } from "@tsed/mongoose";
 import bcrypt from "bcrypt";
 import { Workspace } from '../Workspace/model';
 
+export enum Roles {
+  ADMIN = "admin",
+  USER = "user"
+}
+
+const saltRounds = 10;
+
 @Schema()
-class MyWorkspace {
+export class MyWorkspace {
 
   @Ref(Workspace)
   workspaceId: Ref<Workspace>;
@@ -14,14 +21,11 @@ class MyWorkspace {
   @MaxLength(50)
   title: string;
 
+  @Property()
+  @Required()
+  @MaxLength(50)
+  role: Roles;
 }
-
-export enum Roles {
-  ADMIN = "admin",
-  USER = "user"
-}
-
-const saltRounds = 10;
 
 @Model()
 export class User {
@@ -61,8 +65,8 @@ export class User {
   @Default(Date)
   signedUpAt: Date = new Date();
 
-  @Property()
-  workspaces: MyWorkspace[];
+  @PropertyType(MyWorkspace)
+  workspaces: Array<MyWorkspace>;
 
   @PreHook("save")
   static preSave(user: User, next: any) {

@@ -2,7 +2,7 @@ import { Service, Inject } from "@tsed/common";
 import { MongooseModel } from "@tsed/mongoose";
 import { $log } from "@tsed/logger";
 import { User } from './model';
-import { Document } from "mongoose";
+import { Document, ModelUpdateOptions, SaveOptions } from "mongoose";
 
 @Service()
 export class UserService{
@@ -25,25 +25,25 @@ export class UserService{
     }
   }
 
-  async updateUser(user: User): Promise<User> {
+  async updateUser(user: User, options?: ModelUpdateOptions ): Promise<User> {
     $log.debug({ message: "Validate user", user });
 
     const model = new this.User(user);
     $log.debug({ message: "Save User", user });
-    await model.updateOne(user, { upsert: true });
+    await model.updateOne(user, { ...options, upsert: true });
 
     $log.debug({ message: "User Updated", model });
 
     return model;
   }
 
-  async save(user: User): Promise<User> {
+  async save(user: User, options?: SaveOptions): Promise<User> {
     $log.debug({ message: "Validate user", user });
 
     const model = new this.User(user);
 
     $log.debug({ message: "Save User", user });
-    await model.save();
+    await model.save(options);
 
     $log.debug({ message: "User saved", model });
 
@@ -58,7 +58,7 @@ export class UserService{
     return this.User.findOne({ email }).exec();
   }
 
-  async findOne(options = {}): Promise<User>{
+  async findOne(options = {}): Promise<User & Document>{
     return this.User.findOne(options).exec();
   }
   

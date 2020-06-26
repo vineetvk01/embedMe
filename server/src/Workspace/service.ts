@@ -2,13 +2,13 @@ import { Service, Inject } from "@tsed/common";
 import { MongooseService, MongooseModel } from "@tsed/mongoose";
 import { $log } from "@tsed/logger";
 import { Workspace } from './model';
+import { Document, ModelUpdateOptions } from "mongoose";
 
 @Service()
 export class WorkspaceService {
 
   @Inject(Workspace)
   private Workspace: MongooseModel<Workspace>;
-  private default;
 
   constructor() {}
 
@@ -18,7 +18,7 @@ export class WorkspaceService {
 
   async reload() {
     const users = await this.Workspace.countDocuments();
-  
+    
     if (users === 0) {
       const promises = require("../../resources/workspaces.json").map(workspace => this.save(workspace));
       await Promise.all(promises);
@@ -30,14 +30,15 @@ export class WorkspaceService {
  * @param calendar
  * @returns {Promise<TResult|TResult2|Calendar>}
  */
-  async save(workspace: Workspace): Promise<Workspace> {
-    $log.debug({ message: "Validate user", workspace });
+  async save(workspace: Workspace, options?: ModelUpdateOptions): Promise<Workspace & Document> {
+
+    $log.debug({ message: "Validate Workspace", workspace });
 
     const model = new this.Workspace(workspace);
-    $log.debug({ message: "Save User", workspace });
-    await model.updateOne(workspace, { upsert: true });
+    $log.debug({ message: "Save Workspace", workspace });
+    await model.updateOne(workspace, { ...options, upsert: true });
 
-    $log.debug({ message: "User saved", model });
+    $log.debug({ message: "User Workspace", model });
 
     return model;
   }
