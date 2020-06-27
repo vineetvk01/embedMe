@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Status, BodyParams, Required, UseAuth, Req, Delete, QueryParams, PathParams } from "@tsed/common";
+import { Controller, Get, Post, Status, BodyParams, Required, UseAuth, Req, Delete, QueryParams, PathParams, $log } from "@tsed/common";
 import { Response } from "@tsed/common";
 import { Roles, UserService, EmailAlreadyExists, MyWorkspace } from '../User';
 import { Authentication, AuthenticatedReq } from '../middlewares/authentication';
@@ -20,15 +20,16 @@ export class WorkspaceController {
   @Get('/')
   @UseAuth(Authentication, { role: Roles.USER })
   @Status(200)
-  currentUser(req: AuthenticatedReq, res: Response): any {
-
+  async myWorkspaces(req: AuthenticatedReq, res: Response): Promise<any> {
+    const { workspaces } = await this.userService.findOne({_id: req.user._id});
+    return { total: workspaces.length, workspaces }
   }
 
   @Post('/add')
   @Status(201)
   @UseAuth(Authentication, { role: Roles.USER })
   async addWorkspace(@Req() req: AuthenticatedReq, @Required @BodyParams() workspace: Workspace & { title: string }): Promise<any> {
-    const { _id, email } = req.user;
+    const { _id } = req.user;
     const session = await this.mongooseService.get().startSession();
     session.startTransaction();
     try {
@@ -43,41 +44,24 @@ export class WorkspaceController {
       });
       await this.userService.updateUser(user, options);
       await session.commitTransaction();
-      return { email, user, workspaceD: workspaceD };
+      return { user, workspace: workspaceD };
     } catch (err) {
       await session.abortTransaction();
     }
     session.endSession();
-    throw new InternalServerError('Please change the name of the workspace');
+    throw new InternalServerError('Please try to change the name of the workspace');
   }
 
   @Delete('/remove/:workspaceId')
   @Status(200)
   @UseAuth(Authentication, { role: Roles.USER })
   async delete(@Req() req: AuthenticatedReq, @Required @PathParams("workspaceId") workspaceId: string): Promise<any> {
-    const { _id, email } = req.user;
-    //const session = await this.mongooseService.get().startSession();
-    //session.startTransaction();
-
-    //const options = { session, new: true };
-    const user = await this.userService.findOne({ _id, 'workspaces.workspaceId': Types.ObjectId(workspaceId) });
-    if(user == null){
-      throw new BadRequest("You don't belong to this workspace");
-    }
-    
-    user.workspaces = user.workspaces.filter((workspace)=> String(workspace.workspaceId) !== workspaceId);
-
-    await user.save();
-    return { user: user }
-
-
-    //   await session.commitTransaction();
-    //   return { deleted: true }
-    // } catch (err) {
-    //   await session.abortTransaction();
-    // }
-    // session.endSession();
-    // throw new InternalServerError('Please change the name of the workspace');
+    const { _id } = req.user;
+    try{
+      const user = await this.userService.removeWorkspace({ userId:_id, workspaceId: Types.ObjectId(workspaceId) });
+      return { user };
+    }catch(e){
+      throw new BadRequest(e.message);
+    } 
   }
-
 }

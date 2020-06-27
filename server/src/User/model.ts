@@ -1,5 +1,6 @@
 import { Property, Required, Enum, Email, MaxLength, Default, PropertySerialize, PropertyType } from "@tsed/common";
-import { Model, Schema, ObjectID, Ref, Unique, PreHook } from "@tsed/mongoose";
+import { Model, MongooseModel, Schema, ObjectID, Ref, Unique, PreHook } from "@tsed/mongoose";
+import { Types } from "mongoose";
 import bcrypt from "bcrypt";
 import { Workspace } from '../Workspace/model';
 
@@ -77,9 +78,11 @@ export class User {
   }
 
 
-  isCorrectPassword(expectedPassword: string):boolean {
+  isCorrectPassword(expectedPassword: string): boolean {
     const user: User = this;
     return bcrypt.compareSync(expectedPassword, user.password);
   }
 
 }
+
+export type UserModel = MongooseModel<User & { workspaces: Types.Array<MyWorkspace> }>;

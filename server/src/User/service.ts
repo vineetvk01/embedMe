@@ -1,14 +1,14 @@
 import { Service, Inject } from "@tsed/common";
 import { MongooseModel } from "@tsed/mongoose";
 import { $log } from "@tsed/logger";
-import { User } from './model';
-import { Document, ModelUpdateOptions, SaveOptions } from "mongoose";
+import { User, UserModel } from './model';
+import { Document, ModelUpdateOptions, SaveOptions, Types } from "mongoose";
 
 @Service()
 export class UserService{
 
   @Inject(User)
-  private User: MongooseModel<User>;
+  private User: UserModel;
 
   constructor() { }
 
@@ -60,6 +60,16 @@ export class UserService{
 
   async findOne(options = {}): Promise<User & Document>{
     return this.User.findOne(options).exec();
+  }
+
+  async removeWorkspace(options: {userId : Types.ObjectId | string, workspaceId: Types.ObjectId}){
+    const user = await this.User.findOne({ _id: options.userId, 'workspaces.workspaceId': options.workspaceId });
+    if(user == null){
+      throw new Error('This user does not have the workspace');
+    }
+    const workspaceToRemove = user.workspaces.filter((workspace) => String(workspace.workspaceId) === String(options.workspaceId))[0];
+    user.workspaces.pull(workspaceToRemove);
+    return user.save();
   }
   
 }
